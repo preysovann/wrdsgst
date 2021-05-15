@@ -16,17 +16,98 @@ predict_fun <- function(inputString, unigram.cp, bigram.cp, trigram.cp) {
         unigram.tokenizer <- function(x) NGramTokenizer(x,Weka_control(min=1,max=1))
         inputString.token <- unigram.tokenizer(inputString)
 
-        if (length(inputString.token) > 2) {
+        if(length(inputString.token) > 3){
+            inputString.token <- tail(inputString.token, 3)
+            prediction.df <-
+                quadrigram.cp[(quadrigram.cp$word1 == inputString.token[1] &
+                                  quadrigram.cp$word2 == inputString.token[2] &
+                                  quadrigram.cp$word3 == inputString.token[3]), ]
+            # prediction.df <-
+            #     quadrigram.cp[grepl(inputString.token[1], quadrigram.cp$word1) &
+            #                       grepl(inputString.token[2],quadrigram.cp$word2) &
+            #                       grepl(inputString.token[3],quadrigram.cp$word3),]
+            
+            row.names(prediction.df) <- NULL
+            prediction1 <- prediction.df$predicted[1]
+            prediction2 <- prediction.df$predicted[2]
+            prediction3 <- prediction.df$predicted[3]
+
+            if(is.na(prediction1)){
+                prediction.df <-
+                    trigram.cp[(trigram.cp$word1==inputString.token[1] &
+                                    trigram.cp$word2==inputString.token[2]),]
+                # prediction.df <- 
+                #     trigram.cp[grepl(inputString.token[1], trigram.cp$word1) 
+                #                & grepl(inputString.token[2], trigram.cp$word2),]
+                
+                row.names(prediction.df) <- NULL
+                prediction1 <- prediction.df$predicted[1]
+                prediction2 <- prediction.df$predicted[2]
+                prediction3 <- prediction.df$predicted[3]
+
+                if (is.na(prediction1)) {
+                    # prediction.df <- bigram.cp[(bigram.cp$word1==inputString.token[2]),]
+                    prediction.df <-
+                        bigram.cp[grepl(inputString.token[2],bigram.cp$word1),]
+                    row.names(prediction.df) <- NULL
+                    prediction1 <- prediction.df$predicted[1]
+                    prediction2 <- prediction.df$predicted[2]
+                    prediction3 <- prediction.df$predicted[3]
+                }
+            }
+        } else if(length(inputString.token) == 3){
+            prediction.df <-
+                quadrigram.cp[(quadrigram.cp$word1==inputString.token[1] &
+                                   quadrigram.cp$word2==inputString.token[2] &
+                                   quadrigram.cp$word3==inputString.token[3]),]
+            # prediction.df <-
+            #     quadrigram.cp[grepl(inputString.token[1], quadrigram.cp$word1) &
+            #                        grepl(inputString.token[2],quadrigram.cp$word2) &
+            #                        grepl(inputString.token[3],quadrigram.cp$word3),]
+            row.names(prediction.df) <- NULL
+            prediction1 <- prediction.df$predicted[1]
+            prediction2 <- prediction.df$predicted[2]
+            prediction3 <- prediction.df$predicted[3]
+
+            if (is.na(prediction1)) {
+                prediction.df <-
+                    trigram.cp[(trigram.cp$word1==inputString.token[1] &
+                                    trigram.cp$word2==inputString.token[2]),]
+                # prediction.df <- trigram.cp[grepl(inputString.token[1], trigram.cp$word1) 
+                #                             & grepl(inputString.token[2], trigram.cp$word2),]
+                
+                row.names(prediction.df) <- NULL
+                prediction1 <- prediction.df$predicted[1]
+                prediction2 <- prediction.df$predicted[2]
+                prediction3 <- prediction.df$predicted[3]
+
+                if (is.na(prediction1)) {
+                    # prediction.df <- bigram.cp[(bigram.cp$word1==inputString.token[2]),]
+                    prediction.df <- bigram.cp[grepl(inputString.token[2],bigram.cp$word1),]
+                    row.names(prediction.df) <- NULL
+                    prediction1 <- prediction.df$predicted[1]
+                    prediction2 <- prediction.df$predicted[2]
+                    prediction3 <- prediction.df$predicted[3]
+                }
+
+            }
+
+        } else if (length(inputString.token) > 2) {
+        # if (length(inputString.token) > 2) {
+            
             inputString.token <- tail(inputString.token,2)
-            prediction.df <- trigram.cp[(trigram.cp$word1==inputString.token[1] 
+            prediction.df <- trigram.cp[(trigram.cp$word1==inputString.token[1]
                                          & trigram.cp$word2==inputString.token[2]),]
+            # prediction.df <- trigram.cp[grepl(inputString.token[1], trigram.cp$word1) 
+            #                              & grepl(inputString.token[2], trigram.cp$word2),]
             row.names(prediction.df) <- NULL
             prediction1 <- prediction.df$predicted[1]
             prediction2 <- prediction.df$predicted[2]
             prediction3 <- prediction.df$predicted[3]
             
             if (is.na(prediction1)) {
-                prediction.df <- bigram.cp[(bigram.cp$word1==inputString.token[2]),]
+                # prediction.df <- bigram.cp[(bigram.cp$word1==inputString.token[2]),]
+                prediction.df <- bigram.cp[grepl(inputString.token[2], bigram.cp$word1),]
                 row.names(prediction.df) <- NULL
                 prediction1 <- prediction.df$predicted[1]
                 prediction2 <- prediction.df$predicted[2]
@@ -34,15 +115,18 @@ predict_fun <- function(inputString, unigram.cp, bigram.cp, trigram.cp) {
             }
             
         } else if (length(inputString.token) == 2) {
-            prediction.df <- trigram.cp[(trigram.cp$word1==inputString.token[1] 
+            prediction.df <- trigram.cp[(trigram.cp$word1==inputString.token[1]
                                          & trigram.cp$word2==inputString.token[2]),]
+            # prediction.df <- trigram.cp[grepl(inputString.token[1], trigram.cp$word1)
+            #                              & grepl(inputString.token[2], trigram.cp$word2),]
             row.names(prediction.df) <- NULL
             prediction1 <- prediction.df$predicted[1]
             prediction2 <- prediction.df$predicted[2]
             prediction3 <- prediction.df$predicted[3]
             
             if (is.na(prediction1)) {
-                prediction.df <- bigram.cp[(bigram.cp$word1==inputString.token[2]),]
+                # prediction.df <- bigram.cp[(bigram.cp$word1==inputString.token[2]),]
+                prediction.df <- bigram.cp[grepl(inputString.token[2], bigram.cp$word1),]
                 row.names(prediction.df) <- NULL
                 prediction1 <- prediction.df$predicted[1]
                 prediction2 <- prediction.df$predicted[2]
@@ -50,7 +134,8 @@ predict_fun <- function(inputString, unigram.cp, bigram.cp, trigram.cp) {
             }
             
         } else if (length(inputString.token) == 1) {
-            prediction.df <- bigram.cp[(bigram.cp$word1==inputString.token[1]),]
+            #prediction.df <- bigram.cp[(bigram.cp$word1==inputString.token[1]),]
+            prediction.df <- bigram.cp[grepl(inputString.token[1], bigram.cp$word1),]
             row.names(prediction.df) <- NULL
             prediction1 <- prediction.df$predicted[1]
             prediction2 <- prediction.df$predicted[2]

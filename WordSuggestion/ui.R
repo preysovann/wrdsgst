@@ -8,7 +8,7 @@ shinyUI(navbarPage("Menu",
                               sidebarPanel(
                                 textInput("text", label = h5("Please enter text below 
                                                              (characters only)")),
-                                actionButton("goButton", "Predict")
+                                actionButton("goButton", "Suggest")
                               ),
                               mainPanel(
                                 h3('Closest matches'),
